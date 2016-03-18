@@ -15,14 +15,6 @@
 -- call drop_index_if_exists('gene_product','genesymbolindex');
 DELETE FROM term where term.is_obsolete = 1 and term_type = "biological_process";
 CREATE INDEX genesymbolindex ON gene_product(symbol);
--- DROP VIEW IF EXISTS synonym;
--- CREATE VIEW synonym AS (SELECT DISTINCT(synonym) FROM symbol_synonym);
--- DROP VIEW IF EXISTS synonym_gene;
--- CREATE VIEW synonym_gene AS SELECT * FROM gene_product AS G, species as S WHERE G.symbol IN (SELECT * FROM temp) AND G.species_id=S.species_id AND S.genus = "Homo" and S.species = "sapiens";
--- DROP VIEW IF EXISTS temp1;
--- CREATE VIEW temp1 AS (SELECT synonym FROM symbol_synonym);
--- DROP TABLE IF EXISTS temp1_gene;
--- CREATE TABLE temp1_gene AS SELECT * FROM gene_product AS G,temp1 where G.symbol=temp1.synonym AND G.species_id=403872;
 DROP TABLE IF EXISTS NCBIsymbol;
 CREATE TABLE NCBIsymbol AS SELECT DISTINCT(symbol) FROM symbol_synonym;
 DROP TABLE IF EXISTS symbolonly_term;
