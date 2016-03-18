@@ -327,5 +327,5 @@ class GoGraph(networkx.DiGraph):
 				writer.writerow(["Total_lost", self.TotalLost])
 				writer.writerow(["GOTerm", "Level" , "SubGeneList"])
 				for go in Goterms:
-					writer.writerow([go, [goterm][1], [goterm][0]])
+					writer.writerow([go, [Goterms][1], [Goterms][0]])
 	
