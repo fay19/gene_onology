@@ -144,9 +144,3 @@ class UpdateDataBase:
 		cursor = self.db.cursor()
 		self.exec_sql_file(self.updateDB_sqlfile)
 		print "final_symbol_synonym table is updated"
-
-# def main():
-# 	mydb = UpdateDataBase("localhost","fanyu","hellowork","assocdb","Homo_sapiens.gene_info.gene_info.txt","../util/NCBI_csv.csv")
-# 	mydb.updateDB()
-# if __name__ == "__main__":
-# 	main()	

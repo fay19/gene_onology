@@ -287,11 +287,5 @@ class GoStructure:
 					ET.SubElement(parentNode,"edge",type="KL").text=str(weight)
 		tree = ET.ElementTree(root)	
 		tree.write(self.output_filepath, pretty_print=True)
-		
-
-# def main():
-# 	g=GoStructure("localhost", "fanyu", "hellowork", "assocdb","../taggedAbstracts/files.xml", "weightedGoGraph.xml", "stopwords.txt")
-# 	g.updateWeights()
-# if __name__== "__main__":
-# 	main()		
+	
 

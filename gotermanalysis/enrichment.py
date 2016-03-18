@@ -209,10 +209,3 @@ class enrichment:
 						writer.writerow(output)
 				print "file saved"
 		print "Done"		
-
-
-def main():
-	tool = enrichment("localhost", "fanyu", "hellowork", "assocdb", "chunhui/MLL2-MLL3.targetgenes.v9.csv","chunhui/", 0.01)
-	tool.enrich_csv();
-if __name__ == "__main__":
-	main()	

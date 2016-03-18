@@ -143,9 +143,3 @@ class downloadPubMed:
             if not os.path.exists(self.parsedPubMeds):
                 os.makedirs(self.parsedPubMeds)
             newtree.write(os.path.join(self.parsedPubMeds, "files_%s.xml"%i))
-
-# def main():
-#   tool = downloadPubMed("localhost", "fanyu", "hellowork", "assocdb", "pubmeds/","parsedPubMeds/")
-#   tool.parse()
-# if __name__ == "__main__":
-#   main()  
