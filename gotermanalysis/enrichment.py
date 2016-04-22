@@ -12,14 +12,15 @@ This class is calcaulating enrichment of given gene list
 
 create an instance for enrichment, then call the function:
 
-1. inputfile is genelists in a csv file: every row is a list, the first column is drivers of this gene list.  
-2. outputfile_path is the directory to store the enrichment result. The number of outputfiles is same with the numbers of genelists in input file. Each output file is named by the driver of each genelist.
-3. threshold is the significant p-value threshold
-2. top is an optional parameter for picking up the top number of enrichment result (e.g. top 5 or top 10), by default is none. 
+Parameters: 
+a. inputfile: genelists in a csv file: every row is a list, the first column is drivers of this gene list.  
+b. outputfile_path: directory to store the enrichment result. The number of outputfiles is same with the numbers of genelists in input file. Each output file is named by the driver of each genelist.
+c. p_value: minimum p-value required for go terms to be enriched
+d. top: is an optional parameter for picking up the top number of enrichment result (e.g. top 5 or top 10), by default is none. 
 
 Example of how to use this class:
-       tool = enrichment(host, user, password, dbname, "MLL2-MLL3.targetgenes.v9.csv", "", 0.01)
-       tool.enrich_csv(top=None)
+tool = enrichment.Enrichment(host, username, password, "assocdb", inputfile, outputfile_path, 0.01)
+tool.enrich_csv(top = none)
 		
 """
 class Enrichment:
@@ -175,8 +176,7 @@ class Enrichment:
 					query = "SELECT distinct(acc) FROM final_symbol_term as FFS\
 							where FFS.offsymbol=(%s)"%(gene)
 					cursor.execute(query)
-					query_result = cursor.fetchall()
-					print query_result			
+					query_result = cursor.fetchall()		
 					for row in query_result:
 						term=row[0]
 						n=self.assocGeneNum(term)

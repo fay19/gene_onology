@@ -11,18 +11,19 @@ import xml.dom.minidom
 import networkx
 
 '''
-#Example of using the class GoGraph:
-
-#Data of Go Ontology structure and gene_Goterm association
-weightGographData = "weightedGoGraph.xml"
-genelist = GeneList_csv_directory
-output = output_directory
-p_value = 0.05
-subGenelistNo = 3
+Parameters: 
+a. weightGographData: a xml file which represents Gene Ontology structure, for example “weightedGoGraph.xml"
+b. genelist: a csv file contains a genelist (Each input cvs file must contain only one genelist, which means it only has one row!!)
+c. output: output_directory
+d. p_value: minimum p-value required for go terms to be enriched
+e. subGenelistNo: minimum number of genes required for go terms to be enriched
 
 #Create a GoGraph object (Note: every time you use the gotermSummarization(), you need to create a new object)
-gograph = GoGraph(weightGraph, genelist, output, p_value, subGeneListNo, host, user, password, dbname):
+
+gograph = merge.GoGraph(weightGographData, genelist, output, p_value, subGenelistNo, host, username, password, "assocdb")
 gograph.gotermSummarization()
+
+Result is in the output directory
 '''
 
 
@@ -98,7 +99,6 @@ class GoGraph(networkx.DiGraph):
 		self.TotalLost = 0.0
 		self.db = MySQLdb.connect(host, user, password, dbname)
 		self.genelist = self.getGeneListsWithCSV(genelist_csvfile)
-		print self.genelist
 		self.result = output_directory
 		self.p_value = p_value_threshold
 		self.subGeneListNo = subGeneListNo_threshold
@@ -320,29 +320,10 @@ class GoGraph(networkx.DiGraph):
 		#Topologically sort all node, the first element is a leaf and the last element is the root
 		New_Top_sort_nodes = networkx.topological_sort(self)
 
-		for node in New_Top_sort_nodes:
-			if len(self.predecessors(node)) == 0:
-				print node
-
-		#go through all nodes in topological order from leaves to the root.
+		#go through all nodes in topological order from leaves to the root
 		for node_child in New_Top_sort_nodes:
 			nodePV = self.node[node_child][self.PV]
 			nodeSize = len(self.node[node_child][self.mapping])
-			# print "Start point"
-			# print node_child
-			# print nodePV
-			# print nodeSize
-			# print self.node[node_child][self.mapping]
-			#if the current node's pv or size is not constrained by the setting conditions, merge this node to the closest parent node.
-			
-		for node_child in New_Top_sort_nodes:
-			nodePV = self.node[node_child][self.PV]
-			nodeSize = len(self.node[node_child][self.mapping])
-			# print "A new iteration"
-			# print node_child
-			# print nodePV
-			# print nodeSize
-			# print self.node[node_child][self.mapping]
 			#if the current node's pv or size is not constrained by the setting conditions, merge this node to the closest parent node.
 			if nodePV > self.p_value or nodeSize < self.subGeneListNo:
 				# print "Merge is True"

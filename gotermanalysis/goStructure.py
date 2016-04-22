@@ -13,20 +13,14 @@ import sets
 import os
 
 """
-This class builds a GOterm graph structure
+This part builds a GOterm graph structure, and calculate the new weights in this structure
 
-The input file is parsed pubmeds with ABNER
-The output file is a GO term graoh structure
-Stopwords is a txt file contains NLP stop words
+Parameters:
+a. inputfile: parsed pubmeds with ABNER
+b. output_filepath: directory to store the output file,  output file is a GO term graph structure
 
-The input file path is where the parsed pubmeds are stored 
-The output file path is the directory where you want to store the output GO term graph structure
-
-input_filepath = "../taggedAbstracts/files.xml"
-output_filepath = "weightedGoGraph.xml"
-
-Example of how to use this class:
-g=GoStructure(host, user, password, "assocdb", input_filepath, output_filepath)
+Example of how to update weights:
+g=goStructure.GoStructure(host, username, password, "assocdb”, inputfile, output_filepath)
 g.updateWeights()
 """
 class GoStructure:

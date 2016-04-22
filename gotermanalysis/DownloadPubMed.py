@@ -34,7 +34,6 @@ class DownloadPubMed:
         result = cursor.fetchall()
         for row in result:
             PMIDs.append(row[0])
-        print len(PMIDs)
         return PMIDs;
 
     def verifyDocuments(self, ids, filename):
@@ -73,7 +72,6 @@ class DownloadPubMed:
         url = "http://www.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
         # ids = map(lambda x: str(int(x)), ids)
         size = int(float(len(self.ids)) / float(blocksize))
-        print size
         # try:
         index = 0
 
@@ -129,7 +127,6 @@ class DownloadPubMed:
             for article in oldtree.iter("MedlineCitation"):
                 doc=ET.SubElement(root,"PubMedArticle");
                 pmid=article.find("PMID").text
-                print pmid
                 title=article.find("Article").find("ArticleTitle").text
                 ET.SubElement(doc, "PMID").text = pmid
                 ET.SubElement(doc, "Title").text = title

@@ -8,26 +8,31 @@ import os
 import string
 
 """
-This class is for updating geneontology database--assocdb
-Before running this program:
-1. download the newest database dump: http://archive.geneontology.org/latest-lite/
-2. add .sql to current database dump file, for example: change "go_20151003-assocdb-data" to "go_20151003-assocdb-data.sql"
-3. log into database on server and type the following command:
+This class will first parse the NCBI gene data and build a table called "symbol_synonym" in database
+Then build a final_symbol_synonym table for mapping gene to GOterm association
+
+Before update database, user must complete the following steps: 
+a. download the newest database dump: http://archive.geneontology.org/latest-lite/
+b. add .sql to current database dump file, for example: change "go_20151003-assocdb-data" to "go_20151003-assocdb-data.sql"
+c. log into database on server and type the following command:
 	DROP DATABASE IF EXISTS assocdb
 	CREATE DATABASE IF EXISTS assocdb
 	quit
-4. type the following command: 
+d. type the following command: 
         mysql -h localhost -u username -p assocdb <dbdump
    for example: 
         mysql -h localhost -u username -p assocdb <go_20151003-assocdb-data.sql
+e. download newest NCBI homo gene file: http://www.ncbi.nlm.nih.gov/gene/
+click Download/FTP on left column, directory is Data —> GENE_INFO —> Mammalia —> Homo_sapiens.gene_info.gz, after download it, change file type to .txt
 
+Then Create an instance for updating database and call function to update.
+Parameters:
+a. homo_gene_directory is the directory that of the previous downloaded NCBI homo gene txt file. 
 
-example of how to use this class:
-mydb = UpdateDB(host, user, password, dbname, directory of NCBI_file)
+Example of updating database: 
+mydb = updateDB.UpdateDB(host, username, password, "assocdb”, homo_gene_directory)
 mydb.update()
 
-This class will first parse the NCBI gene data and build a table called "symbol_synonym" in database
-Then build a final_symbol_synonym table for mapping gene to GOterm association
 """
 class UpdateDB:
 
