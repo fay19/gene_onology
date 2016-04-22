@@ -19,7 +19,7 @@ tool = downloadPubMed(host, user, password, dbname, pubmed_directory, parsedPubM
 tool.parse()
 """
 
-class downloadPubMed: 
+class DownloadPubMed: 
     def __init__(self, host, user, password, dbname, pubmed_directory, parsedPubMed_directory):
         self.db = MySQLdb.connect(host, user, password, dbname)
         self.ids = self.getPMIDs()

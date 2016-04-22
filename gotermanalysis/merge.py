@@ -74,7 +74,7 @@ def Difference(P_list1, P_list2):
 # @param population -- population (here use the offical home sapiens genes in NCBI)
 # @param white_balls_in_population -- assoicated genes in population
 # @param total_balls_drawn-- input genelist size
-def hypergeom(self, white_balls_drawn,population, white_balls_in_population, total_balls_drawn):
+def hypergeom_function(white_balls_drawn, population, white_balls_in_population, total_balls_drawn):
 	"""
 	hypergeometric function for probability value 
 	@param white_balls_drawn -- associated gene in input genesubset
@@ -89,7 +89,7 @@ class GoGraph(networkx.DiGraph):
 
 	#p_value_threshold is the threshold of P_Value of the Go term node in final result
 	#subGeneListNo_threshold is the minimum number of genes in the Go term node in final result
-	def __init__(self, weightGraph, genelist_csvfile, output_directory, p_value_threshold, subGeneListNo_threshold, user, password, dbname):
+	def __init__(self, weightGraph, genelist_csvfile, output_directory, p_value_threshold, subGeneListNo_threshold, host, user, password, dbname):
 		networkx.DiGraph.__init__(self)		
 		self.association = 'Association_proteins'
 		self.association_acc = 'Association_Accumulation'
@@ -98,11 +98,14 @@ class GoGraph(networkx.DiGraph):
 		self.TotalLost = 0.0
 		self.db = MySQLdb.connect(host, user, password, dbname)
 		self.genelist = self.getGeneListsWithCSV(genelist_csvfile)
+		print self.genelist
 		self.result = output_directory
 		self.p_value = p_value_threshold
 		self.subGeneListNo = subGeneListNo_threshold
 		self.gene_GOterm = self.geneToGOtermAssoc()
+		# print self.gene_GOterm
 		self.GOterm_gene = self.GOtermToGeneAssoc()
+		# print self.GOterm_gene
 		self.NumberOfAllProtein = len(self.gene_GOterm)
 		self.createDiGraph(weightGraph)
 
@@ -111,12 +114,11 @@ class GoGraph(networkx.DiGraph):
 		"""
 		Return list of list of genes in given input file
 		"""
-		genelists=[]
-		reader=csv.reader(open(genelist_csvfile,"rb")) 
+		genelist = []
+		reader = csv.reader(open(genelist_csvfile,"rb")) 
 		for line in reader:
 			genelist = line
-			genelists.append(genelist)
-		return genelists
+		return genelist
 
 	def geneToGOtermAssoc(self):
 		gene_GOterm = {}
@@ -214,7 +216,7 @@ class GoGraph(networkx.DiGraph):
 		for node in Top_sort_nodes:
 			children = self.predecessors(node)
 			for child in children:
-				if self.node[child]['level']>self.node[node]['level']+1:
+				if self.node[child]['level'] > self.node[node]['level']+1:
 					self.node[child]['level'] = self.node[node]['level']+1
 		
 	##map gene list to Go Terms, use association_acc to calculate PV
@@ -224,18 +226,24 @@ class GoGraph(networkx.DiGraph):
 			if self.gene_GOterm.has_key(gene):
 				Gene_List_Associated.append(gene)
 		self.NumberOfProtein_InList = len(Gene_List_Associated)
+		# print self.NumberOfProtein_InList
 
 		for nodeID in self.nodes():
 			# genes directly associated with this term
+			# print nodeID
 			P_Association = self.node[nodeID][self.association]
+			# print P_Association
 			# all genes associated with this term, inlcuding genes propagating from children
 			P_Association2 = self.node[nodeID][self.association_acc]
+			# print P_Association2
 			P_protein = Intersection(genelist, P_Association)
+			# print P_protein_acc
 			self.node[nodeID][self.mapping] = P_protein
 				
-			newPV = hypergeom(len(P_protein), self.NumberOfAllProtein, len(P_Association2), self.NumberOfProtein_InList)
+			newPV = hypergeom_function(len(P_protein), self.NumberOfAllProtein, len(P_Association2), self.NumberOfProtein_InList)
 			self.node[nodeID][self.PV] = newPV
-		
+	
+	#remove irrelavant node	
 	def simplify_Goterm_Structure(self):
 		Top_Order = networkx.topological_sort(self)
 		for node in Top_Order:
@@ -270,9 +278,10 @@ class GoGraph(networkx.DiGraph):
 		if len(self.node[target_node][self.mapping])>self.NumberOfProtein_InList:
 			print len(P_Source2), len(P_Target2)
 		if checkDup(self.node[target_node][self.mapping]) ==1:
+			list(set(self.node[target_node][self.mapping]))
 			print '!!! mapping Dup'
 
-		newPV = hypergeom(len(self.node[target_node][self.mapping]), self.NumberOfAllProtein, len(self.node[target_node][self.association_acc]), self.NumberOfProtein_InList)
+		newPV = hypergeom_function(len(self.node[target_node][self.mapping]), self.NumberOfAllProtein, len(self.node[target_node][self.association_acc]), self.NumberOfProtein_InList)
 		self.node[target_node][self.PV] = newPV
 		self.TotalLost += lost
 		Children_S = self.predecessors(source_node)
@@ -283,6 +292,19 @@ class GoGraph(networkx.DiGraph):
 			self.add_edge(proteinTp,target_node)
 			self.edge[proteinTp][target_node]['weight'] = self.edge[proteinTp][source_node]['weight'] + self.edge[source_node][target_node]['weight']
 		self.remove_node(source_node)
+
+	## return the name of a given term
+	# @param term
+	def getTermName(self,term):	
+		"""
+		return the name of a given term
+		@param term
+		"""	
+		cursor=self.db.cursor()
+		query="select name from term where acc='%s'"%(term)
+		cursor.execute(query)
+		query_result=cursor.fetchall()
+		return query_result[0][0]
 
 	## use P_GotermNumber to summarizate a given list of proteins
 	# Topologically sort at first	
@@ -298,13 +320,32 @@ class GoGraph(networkx.DiGraph):
 		#Topologically sort all node, the first element is a leaf and the last element is the root
 		New_Top_sort_nodes = networkx.topological_sort(self)
 
+		for node in New_Top_sort_nodes:
+			if len(self.predecessors(node)) == 0:
+				print node
+
 		#go through all nodes in topological order from leaves to the root.
 		for node_child in New_Top_sort_nodes:
 			nodePV = self.node[node_child][self.PV]
 			nodeSize = len(self.node[node_child][self.mapping])
-
-			#if the current node's pv or size is not constrained by the setting conditions, merge this node to the most close parent node.
+			# print "Start point"
+			# print node_child
+			# print nodePV
+			# print nodeSize
+			# print self.node[node_child][self.mapping]
+			#if the current node's pv or size is not constrained by the setting conditions, merge this node to the closest parent node.
+			
+		for node_child in New_Top_sort_nodes:
+			nodePV = self.node[node_child][self.PV]
+			nodeSize = len(self.node[node_child][self.mapping])
+			# print "A new iteration"
+			# print node_child
+			# print nodePV
+			# print nodeSize
+			# print self.node[node_child][self.mapping]
+			#if the current node's pv or size is not constrained by the setting conditions, merge this node to the closest parent node.
 			if nodePV > self.p_value or nodeSize < self.subGeneListNo:
+				# print "Merge is True"
 				parents = self.successors(node_child)
 				minWeight = 100000; 
 				flag = 'none'
@@ -314,18 +355,24 @@ class GoGraph(networkx.DiGraph):
 						flag = node
 				if flag == 'none':
 					pass
+					# print "no close parent find"
 				else:
+					# print "merge " + node_child + " to " + flag
 					self.merge_nodes(node_child,flag)
+		# print "Finish Merge"
 
+		# print "Result#############################################"
 		Goterms = {}
 		for go in self.nodes():
 			if len(self.node[go][self.mapping])>0:
-				Goterms[go] = [self.node[go][self.mapping],self.node[go]['level']]
+				Goterms[go] = [self.node[go][self.mapping], self.node[go]['level']]
+				# print go
+				# print Goterms[go]
 
-		with open(self.result + '.csv', 'wb') as csvfile:
-				writer=csv.writer(csvfile, delimiter=',',)
+		with open(self.result + 'merge_result.csv', 'wb') as csvfile:
+				writer=csv.writer(csvfile, delimiter=',')
 				writer.writerow(["Total_lost", self.TotalLost])
-				writer.writerow(["GOTerm", "Level" , "SubGeneList"])
+				writer.writerow(["GOTerm", "TermName", "Level" , "SubGeneList"])
 				for go in Goterms:
-					writer.writerow([go, [Goterms][1], [Goterms][0]])
+					writer.writerow([go, Goterms[go][1], self.getTermName(go), Goterms[go][0]])
 	

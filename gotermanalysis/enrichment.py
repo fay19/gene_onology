@@ -18,11 +18,11 @@ create an instance for enrichment, then call the function:
 2. top is an optional parameter for picking up the top number of enrichment result (e.g. top 5 or top 10), by default is none. 
 
 Example of how to use this class:
-       enrichment = enrichment(host, user, password, dbname, "MLL2-MLL3.targetgenes.v9.csv", “”, 0.01)
-       enrichment.enrich_csv(top=None)
+       tool = enrichment(host, user, password, dbname, "MLL2-MLL3.targetgenes.v9.csv", "", 0.01)
+       tool.enrich_csv(top=None)
 		
 """
-class enrichment:
+class Enrichment:
 	
 	## Class constructor. It has two fields: a database connector and numbers of gene population
 	# @param host
@@ -155,8 +155,10 @@ class enrichment:
 		cursor=self.db.cursor()
 		##output is a list of lists, every list inside contains drivers and its associated term dictionary lists		
 		for i in range(0,len(genelists)):
-			print len(genelists[i])
-			driver = genelists[i].pop(0)			
+			# print len(genelists[i])
+			driver = genelists[i].pop(0)
+			# print driver
+			# print genelists[i][0]			
 			with open(self.outputfile + '%s.csv'%(driver), 'wb') as csvfile:
 				writer=csv.writer(csvfile, delimiter=',',)
 				writer.writerow(["P-value", "GOTerm", "TermName", "SubGeneList"])
@@ -173,7 +175,8 @@ class enrichment:
 					query = "SELECT distinct(acc) FROM final_symbol_term as FFS\
 							where FFS.offsymbol=(%s)"%(gene)
 					cursor.execute(query)
-					query_result = cursor.fetchall()			
+					query_result = cursor.fetchall()
+					print query_result			
 					for row in query_result:
 						term=row[0]
 						n=self.assocGeneNum(term)

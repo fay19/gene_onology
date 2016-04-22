@@ -1,6 +1,6 @@
 from xml.sax import handler, make_parser
 import re
-from Document import Document
+from document import Document
 
 
 ## This class parses PubmedArticleSet xml files.  When parsing is finished, the docs

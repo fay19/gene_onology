@@ -24,10 +24,9 @@ The output file path is the directory where you want to store the output GO term
 
 input_filepath = "../taggedAbstracts/files.xml"
 output_filepath = "weightedGoGraph.xml"
-stopwords = "stopwords.txt"
 
 Example of how to use this class:
-g=GoStructure(host, user, password, "assocdb", input_filepath, output_filepath, stopwords)
+g=GoStructure(host, user, password, "assocdb", input_filepath, output_filepath)
 g.updateWeights()
 """
 class GoStructure:
@@ -38,7 +37,7 @@ class GoStructure:
 	# @param dbname
 	# @param input_filepath
 	# @param output_filepath
-	def __init__(self, host, user, password, dbname, input_filepath, output_filepath, stopwords):
+	def __init__(self, host, user, password, dbname, input_filepath, output_filepath):
 		"""
 		Class constructor. It has 5 fields: a directed Graph, a database connector, a term-wordvector dictionary, a term-pubmed dictionary 
 		@param host
@@ -53,7 +52,7 @@ class GoStructure:
 		self.termPubMed={}
 		self.input_filepath = input_filepath
 		self.output_filepath = output_filepath
-		self.stopwords = stopwords
+		self.stopwords = "extra_file/stopwords.txt"
 		self.db = MySQLdb.connect(host, user, password, dbname);
 
 	## build GO term director graph, edge is from parent Node to child node
@@ -287,5 +286,11 @@ class GoStructure:
 					ET.SubElement(parentNode,"edge",type="KL").text=str(weight)
 		tree = ET.ElementTree(root)	
 		tree.write(self.output_filepath, pretty_print=True)
-	
+		
+
+# def main():
+# 	g=GoStructure("localhost", "fanyu", "hellowork", "assocdb","../taggedAbstracts/files.xml", "weightedGoGraph.xml", "stopwords.txt")
+# 	g.updateWeights()
+# if __name__== "__main__":
+# 	main()		
 

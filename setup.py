@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
 	name='GoTermAnalysis',
-	version='0.1.0',
+	version='0.1.4',
 	author='Fan Yu',
 	author_email='fay19@pitt.edu',
 	packages=['gotermanalysis'],
@@ -12,6 +12,6 @@ setup(
 	install_requires=['MySQL-python'],	
 	package_data = {
 		# If any package contains *.txt or *.sql files, include them:
-		'gotermanalysis': ['extra_file/*.txt', 'extra_file/*.sql']},
+		'gotermanalysis': ['extra_file/*.txt', 'extra_file/*.sql', 'extra_file/*.jar' , 'extra_file/*.java', 'extra_file/*.clas']},
 	include_package_data=True,
 )
