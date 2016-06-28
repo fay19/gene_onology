@@ -1,9 +1,7 @@
 import MySQLdb
 import sys
-import prettytable
 from scipy.stats import hypergeom
 import collections
-import cPickle as pickle
 import csv
 import itertools
 
